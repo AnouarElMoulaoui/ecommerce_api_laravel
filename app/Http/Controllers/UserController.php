@@ -37,13 +37,19 @@ class UserController extends Controller
         
         if( auth()->attempt(['email' => $request->email ,'password' => $request->password])){
             $user = auth()->user();
-            //$token = $user->createToken("api")->plainTextToken;
+            if($user->user_role == 1){
+                $token = $user->createToken($user->email.'_admin_token_', ['server:admin'])->plainTextToken;
+            }
+            else{
+                $token = $user->createToken($user->email.'_token_', [''])->plainTextToken;
+            }
+           
             return response()->json([
                 'status' => 200,
                 'msg' => 'login success',
                 'data' => [
                         'user' => $user,
-                        'token' => $user->createToken("api")->plainTextToken
+                        'token' => $token
                     ]
             ]);
         }
@@ -69,5 +75,19 @@ class UserController extends Controller
             'msg'=> '',
             'data' => auth()->user() 
         ]);
+    }
+
+    public function checkIslogged(){
+        return response()->json([
+            'status' => 200,
+            'msg' => 'logged'
+        ],200);
+    }
+
+    public function isAdmin(){
+        return response()->json([
+            'status' => 200,
+            'msg' => ''
+        ],200);
     }
 }
